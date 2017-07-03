@@ -1,0 +1,54 @@
+apply plugin: 'java'
+
+group = 'org.novaposhta.bot'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'NovaPoshtaBot',
+                'Main-Class': 'com.novaposhta.bot.BotRunner'
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+allprojects {
+        repositories {
+            maven { url "https://jitpack.io" }
+        }
+    }
+
+
+dependencies {
+            compile 'com.github.rubenlagus:TelegramBots:v2.4.4.4',
+                    'com.google.code.gson:gson:2.7',
+                    'junit:junit:4.+'
+}
+
+task stage(type: Copy, dependsOn: [clean, build]) {
+    from jar.archivePath
+    into project.rootDir
+    rename {
+        'npbot.jar'
+    }
+}
+
+stage.mustRunAfter(clean)
+
+clean << {
+    project.file('npbot.jar').delete()
+}
